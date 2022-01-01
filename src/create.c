@@ -37,6 +37,10 @@
 #include "create.h"
 #include "err.h"
 
+#define HEADER_SIZE 5
+#define RLE_RECORD_SIZE 8
+#define RLE_TRADEOFF_SIZE (HEADER_SIZE + RLE_RECORD_SIZE)
+
 struct ips_record
 {
 	long offset;
@@ -199,8 +203,8 @@ pcips_create_patch(FILE *src, FILE *modified, FILE *patch, long src_length)
 			else
 			{
 				/* is it cheaper to make an RLE record? */
-				if (rec.rle_size > 13
-					|| (rec.rle_size > 8
+				if (rec.rle_size > RLE_TRADEOFF_SIZE
+					|| (rec.rle_size > RLE_RECORD_SIZE
 						&& rec.rle_size == rec.size))
 				{
 					rc = bail_to_rle(patch, &rec);
@@ -220,7 +224,7 @@ pcips_create_patch(FILE *src, FILE *modified, FILE *patch, long src_length)
 					rc = bail_to_rle(patch, &rec);
 					in_patch = 0;
 				}
-				else if (rec.rle_size > 8)
+				else if (rec.rle_size > RLE_RECORD_SIZE)
 				{
 					rc = strip_to_rle(patch, &rec);
 				}
@@ -265,7 +269,7 @@ pcips_create_patch(FILE *src, FILE *modified, FILE *patch, long src_length)
 
 				/* will it cost more to start a new record? */
 				if ((!rpt || mod_c != rec.rle_data)
-					&& rec.rle_size > 13)
+					&& rec.rle_size > RLE_TRADEOFF_SIZE)
 				{
 					rc = bail_to_rle(patch, &rec);
 					if (rc)
@@ -316,9 +320,10 @@ pcips_create_patch(FILE *src, FILE *modified, FILE *patch, long src_length)
 				}
 				else
 				{
-					if (rec.rle_size > 8
+					if (rec.rle_size > RLE_RECORD_SIZE
 						|| (rec.rle_size == rec.size
-							&& rec.rle_size > 3))
+							&& rec.rle_size >
+							(RLE_RECORD_SIZE - HEADER_SIZE)))
 						rc = bail_to_rle(patch, &rec);
 					else
 						rc = write_record(patch, &rec);
@@ -337,8 +342,9 @@ pcips_create_patch(FILE *src, FILE *modified, FILE *patch, long src_length)
 
 	if (in_patch)
 	{
-		if (rec.rle_size > 8
-			|| (rec.rle_size > 3 && rec.rle_size == rec.size))
+		if (rec.rle_size > RLE_RECORD_SIZE
+			|| (rec.rle_size > (RLE_RECORD_SIZE - HEADER_SIZE)
+				&& rec.rle_size == rec.size))
 			rc = bail_to_rle(patch, &rec);
 		else
 			rc = write_record(patch, &rec);
