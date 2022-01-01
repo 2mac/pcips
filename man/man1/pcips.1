@@ -1,0 +1,125 @@
+.TH pcips 1 "January 2022" "" ""
+
+.SH NAME
+.P
+pcips - Portable C IPS patch utility
+
+.SH SYNOPSIS
+.P
+.B
+pcips
+.RI [ OPTION ]...
+-a
+.I
+PATCH SOURCE
+.RI [ DEST ]
+
+.P
+.B pcips
+-c
+.I
+PATCH SOURCE MODIFIED
+
+.P
+.B
+pcips
+-j
+.I
+OUTPUT PATCH1 PATCH2
+[...]
+
+.SH DESCRIPTION
+.P
+Apply, create, or join IPS binary patch files.
+
+.SS Apply a patch
+.P
+The flag
+.B
+-a
+is used to apply patches to existing files.
+.I
+PATCH
+indicates to the IPS patch file to be applied.
+.I
+SOURCE
+indicates to the original file to which the patch will be applied.
+.I
+DEST
+indicates the file which will contain the result of applying the
+patch.
+
+.P
+Although it is marked as an optional parameter,
+.I
+DEST
+is required unless the
+.B
+-i
+option is given.  This is a safety feature to prevent accidental corruption
+of original files.
+
+.P
+The following options may be used when applying patches:
+
+.RS
+.P
+.B
+-f
+.RS
+Ignore IPS file size limit of 16MB and apply patch anyway.
+.RE
+
+.P
+.B
+-i
+.RS
+Patch
+.I
+SOURCE
+in place, overwriting it.
+.RE
+.RE
+
+.SS Create a patch file
+.P
+The flag
+.B
+-c
+is used to create patch files from an original
+.I
+SOURCE
+file and a
+.I
+MODIFIED
+file.  A patch file describing the changes will be generated and written to
+.IR PATCH .
+
+.SS Joining two or more patch files together
+.P
+The flag
+.B
+-j
+is used to join (concatenate) multiple patch files into a single combined patch
+file.  The
+.I
+OUTPUT
+parameter indicates the file into which the combined patch will be written.
+
+.P
+Any number of patch files may be joined in this way, and the resulting file
+will yield the result of applying each of the input patches sequentially in the
+order given.
+
+.SH AUTHOR
+.P
+Written by David McMackins II.
+
+.SH COPYRIGHT
+.P
+Copyright (C) 2022 David McMackins II.  License COIL 1.0: Copyfree Open
+Innovation License version 1.0.
+
+.P
+This is free software: you are free to change and redistribute it.  There is NO
+WARRANTY, to the extent permitted by law.

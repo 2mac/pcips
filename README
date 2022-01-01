@@ -1,0 +1,52 @@
+pcips
+=====
+
+Portable C IPS patch utility. This program implements the IPS patching format,
+including such functions as applying patches to binaries, generating new patch
+files from modified binaries, and joining multiple patch files together in
+order.
+
+Build
+-----
+
+You'll need an ANSI C compiler and a POSIX build environment. On Debian-based
+systems, you can get this with:
+
+    # apt install build-essential
+
+pcips uses a simple build process:
+
+    $ make
+
+Install
+-------
+
+After building, you can install the program with
+
+    # make install
+
+Usage
+-----
+
+To apply a patch:
+
+    $ pcips -a patch_file source_file output_file
+
+If you want to patch the source file in place (overwriting it):
+
+    $ pcips -ia patch_file source_file
+
+To create a patch file based on an original and a modified file:
+
+    $ pcips -c patch_file source_file modified_file
+
+To join (concatenate) multiple patch files into a single file that will apply
+them in the same order:
+
+    $ pcips -j output_file input1 [input2 ...]
+
+License
+-------
+
+pcips is free software, released under the terms of version 1.0 of the Copyfree
+Open Innovation License. See [COPYING](COPYING) for more details.
