@@ -53,7 +53,7 @@ write_record(FILE *f, const struct ips_record *rec)
 {
 	long offset;
 	unsigned int size;
-	unsigned char header[RLE_HEADER_SIZE];
+	unsigned char header[HEADER_SIZE];
 
 	offset = rec->offset;
 	header[0] = (offset & 0xFF0000L) >> 16;
@@ -66,14 +66,17 @@ write_record(FILE *f, const struct ips_record *rec)
 
 	if (0 == size) /* RLE record */
 	{
-		size = rec->rle_size;
-		header[5] = (size & 0xFF00) >> 8;
-		header[6] = (size & 0x00FF);
+		unsigned char rle[RLE_EXTENSION];
 
-		if (fwrite(header, RLE_HEADER_SIZE, 1, f) != 1)
+		size = rec->rle_size;
+		rle[0] = (size & 0xFF00) >> 8;
+		rle[1] = (size & 0x00FF);
+		rle[2] = rec->rle_data;
+
+		if (fwrite(header, HEADER_SIZE, 1, f) != 1)
 			return PCIPS_EIO;
 
-		if (fputc(rec->rle_data, f) == EOF)
+		if (fwrite(rle, RLE_EXTENSION, 1, f) != 1)
 			return PCIPS_EIO;
 	}
 	else

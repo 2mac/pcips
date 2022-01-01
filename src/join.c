@@ -36,8 +36,6 @@
 #include "err.h"
 #include "join.h"
 
-#define RLE_EXTENSION (RLE_RECORD_SIZE - HEADER_SIZE)
-
 int
 pcips_join_patches(FILE *dest, const char * const *src_paths, int n)
 {
