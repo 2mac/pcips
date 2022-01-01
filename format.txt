@@ -1,0 +1,32 @@
+IPS Patch Format Specification
+==============================
+
+This file describes the format of IPS binary patches.
+
+The file begins with a 5-byte header containing the ASCII string "PATCH"
+without a NUL terminator.
+
+Following the header are any number of patch records. Records come in two
+variants: plain segments and RLE segments. Records are placed one after the
+other with nothing in between. All numbers are big endian.
+
+A plain record is structured as follows:
+
+| Field  | Length | Description                                                       |
+|--------+--------+-------------------------------------------------------------------|
+| offset |      3 | Indicates the position in the file where the patch segment begins |
+| size   |      2 | Indicates the number of data bytes to follow                      |
+| data   |   size | The bytes to be inserted at offset                                |
+
+An RLE record describes a string of identical repeating bytes. It has the
+structure:
+
+| Field    | Length | Description                                               |
+|----------+--------+-----------------------------------------------------------|
+| offset   |      3 | Same as for plain records                                 |
+| size     |      2 | Always set to 0 which signifies it as an RLE record       |
+| rle_size |      2 | Indicates the number of times the data byte is repeated   |
+| data     |      1 | The byte to be repeated rle_size times starting at offset |
+
+At the end of all the records, the file ends with a 3-byte footer containing
+the ASCII string "EOF" without a NUL terminator.

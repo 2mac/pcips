@@ -6,6 +6,9 @@ including such functions as applying patches to binaries, generating new patch
 files from modified binaries, and joining multiple patch files together in
 order.
 
+Most of you finding this program know what you're doing, but for those
+unfamiliar with the format, I have described it in an included [text file][1].
+
 Build
 -----
 
@@ -50,3 +53,5 @@ License
 
 pcips is free software, released under the terms of version 1.0 of the Copyfree
 Open Innovation License. See [COPYING](COPYING) for more details.
+
+[1]: format.txt
