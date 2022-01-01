@@ -231,7 +231,13 @@ main(int argc, char *argv[])
 		}
 
 		if (rc)
-			fprintf(stderr, "Error applying patch: %d\n", rc);
+		{
+			fprintf(stderr, "Error applying patch: %s\n",
+				pcips_strerror(rc));
+
+			if (PCIPS_EARGS == rc)
+				fprintf(stderr, "%s\n", USAGE);
+		}
 		break;
 
 	case MODE_CREATE:
@@ -293,7 +299,13 @@ main(int argc, char *argv[])
 		rc = pcips_create_patch(src_file, dest_file, patch_file,
 					file_length(src_file));
 		if (rc)
-			fprintf(stderr, "Error creating patch: %d\n", rc);
+		{
+			fprintf(stderr, "Error creating patch: %s\n",
+				pcips_strerror(rc));
+
+			if (PCIPS_EARGS == rc)
+				fprintf(stderr, "%s\n", USAGE);
+		}
 		break;
 
 	case MODE_JOIN:

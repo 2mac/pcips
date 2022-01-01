@@ -29,19 +29,29 @@
  *  THE USE OF OR OTHER DEALINGS IN THE WORK.
  */
 
-#ifndef PCIPS_ERR_H
-#define PCIPS_ERR_H
-
-enum pcips_error
-{
-	PCIPS_ENONE,
-	PCIPS_ENOMEM,
-	PCIPS_EARGS,
-	PCIPS_EIO,
-	PCIPS_EFILE
-};
+#include "err.h"
 
 const char *
-pcips_strerror(enum pcips_error error);
+pcips_strerror(enum pcips_error error)
+{
+	switch (error)
+	{
+	case PCIPS_ENONE:
+		return "no error";
 
-#endif
+	case PCIPS_ENOMEM:
+		return "out of memory";
+
+	case PCIPS_EARGS:
+		return "error in command line arguments";
+
+	case PCIPS_EIO:
+		return "I/O error";
+
+	case PCIPS_EFILE:
+		return "file format error";
+
+	default:
+		return "unknown error";
+	}
+}

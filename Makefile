@@ -6,7 +6,7 @@ PREFIX=/usr/local
 
 all: pcips
 
-pcips_deps=src/main.o src/apply.o src/create.o src/join.o
+pcips_deps=src/main.o src/apply.o src/create.o src/err.o src/join.o
 pcips: $(pcips_deps)
 	$(CC) -o $@ $(pcips_deps)
 
