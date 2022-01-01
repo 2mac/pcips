@@ -37,9 +37,6 @@
 #include "create.h"
 #include "err.h"
 
-#define HEADER_SIZE 5
-#define RLE_HEADER_SIZE (HEADER_SIZE + 2)
-#define RLE_RECORD_SIZE (RLE_HEADER_SIZE + 1)
 #define RLE_TRADEOFF_SIZE (HEADER_SIZE + RLE_RECORD_SIZE)
 
 struct ips_record
@@ -54,7 +51,6 @@ struct ips_record
 static int
 write_record(FILE *f, const struct ips_record *rec)
 {
-	int rc;
 	long offset;
 	unsigned int size;
 	unsigned char header[RLE_HEADER_SIZE];
@@ -74,28 +70,19 @@ write_record(FILE *f, const struct ips_record *rec)
 		header[5] = (size & 0xFF00) >> 8;
 		header[6] = (size & 0x00FF);
 
-		rc = fwrite(header, RLE_HEADER_SIZE, 1, f);
-		if (rc != 1)
+		if (fwrite(header, RLE_HEADER_SIZE, 1, f) != 1)
 			return PCIPS_EIO;
 
-		rc = fputc(rec->rle_data, f);
-		if (EOF == rc)
+		if (fputc(rec->rle_data, f) == EOF)
 			return PCIPS_EIO;
 	}
 	else
 	{
-		unsigned int i = 0;
-
-		rc = fwrite(header, HEADER_SIZE, 1, f);
-		if (rc != 1)
+		if (fwrite(header, HEADER_SIZE, 1, f) != 1)
 			return PCIPS_EIO;
 
-		while (size--)
-		{
-			rc = fputc(rec->data[i++], f);
-			if (EOF == rc)
-				return PCIPS_EIO;
-		}
+		if (fwrite(rec->data, sizeof rec->data[0], size, f) != size)
+			return PCIPS_EIO;
 	}
 
 	return 0;
@@ -105,7 +92,6 @@ static int
 strip_to_rle(FILE *f, struct ips_record *rec)
 {
 	int rc;
-	unsigned int i, size;
 
 	rec->size -= rec->rle_size;
 	if (rec->size != 0)
@@ -117,10 +103,7 @@ strip_to_rle(FILE *f, struct ips_record *rec)
 
 	rec->offset += rec->size;
 	rec->size = rec->rle_size;
-
-	size = rec->rle_size;
-	for (i = 0; i < size; ++i)
-		rec->data[i] = rec->rle_data;
+	memset(rec->data, rec->rle_data, rec->rle_size);
 
 	return 0;
 }

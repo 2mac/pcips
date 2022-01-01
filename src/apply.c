@@ -56,7 +56,7 @@ pcips_apply_patch(FILE *src_file, FILE *dest_file, FILE *patch)
 	int c;
 	long offset, length, pos;
 	unsigned int size;
-	unsigned char buf[5];
+	unsigned char buf[HEADER_SIZE];
 
 	if (src_file != dest_file)
 	{
@@ -84,14 +84,14 @@ pcips_apply_patch(FILE *src_file, FILE *dest_file, FILE *patch)
 	clearerr(src_file);
 	rewind(patch);
 
-	size = fread(buf, 1, 5, patch);
-	if (size != 5 || memcmp(buf, IPS_HEADER, 5) != 0)
+	size = fread(buf, 1, HEADER_SIZE, patch);
+	if (size != HEADER_SIZE || memcmp(buf, IPS_HEADER, HEADER_SIZE) != 0)
 		return PCIPS_EFILE;
 
-	while ((size = fread(buf, 1, 5, patch)) == 5)
+	while ((size = fread(buf, 1, HEADER_SIZE, patch)) == HEADER_SIZE)
 	{
-		offset = unbuffer(buf, 3);
-		size = unbuffer(&buf[3], 2);
+		offset = unbuffer(buf, IPS_OFFSET_SIZE);
+		size = unbuffer(&buf[IPS_OFFSET_SIZE], IPS_SIZE_SIZE);
 
 		if (offset > length)
 		{
@@ -107,11 +107,11 @@ pcips_apply_patch(FILE *src_file, FILE *dest_file, FILE *patch)
 		fseek(dest_file, offset, SEEK_SET);
 		if (0 == size) /* RLE record */
 		{
-			size = fread(buf, 1, 2, patch);
-			if (size != 2)
+			size = fread(buf, 1, IPS_SIZE_SIZE, patch);
+			if (size != IPS_SIZE_SIZE)
 				return PCIPS_EFILE;
 
-			size = unbuffer(buf, 2);
+			size = unbuffer(buf, IPS_SIZE_SIZE);
 			c = fgetc(patch);
 			if (EOF == c)
 				return PCIPS_EIO;
@@ -141,7 +141,7 @@ pcips_apply_patch(FILE *src_file, FILE *dest_file, FILE *patch)
 			length = pos;
 	}
 
-	if (size != 3 || memcmp(buf, IPS_FOOTER, 3) != 0)
+	if (size != FOOTER_SIZE || memcmp(buf, IPS_FOOTER, FOOTER_SIZE) != 0)
 		return PCIPS_EFILE;
 
 	return 0;

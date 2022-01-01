@@ -36,12 +36,14 @@
 #include "err.h"
 #include "join.h"
 
+#define RLE_EXTENSION (RLE_RECORD_SIZE - HEADER_SIZE)
+
 int
 pcips_join_patches(FILE *dest, const char * const *src_paths, int n)
 {
 	int rc, i, c;
 	unsigned int size;
-	unsigned char buf[5];
+	unsigned char buf[HEADER_SIZE];
 
 	rc = fputs(IPS_HEADER, dest);
 	if (EOF == rc)
@@ -57,37 +59,38 @@ pcips_join_patches(FILE *dest, const char * const *src_paths, int n)
 			break;
 		}
 
-		size = fread(buf, 1, 5, src);
-		if (size != 5 || memcmp(buf, IPS_HEADER, 5) != 0)
+		size = fread(buf, 1, HEADER_SIZE, src);
+		if (size != HEADER_SIZE
+			|| memcmp(buf, IPS_HEADER, HEADER_SIZE) != 0)
 		{
 			rc = PCIPS_EFILE;
 			fclose(src);
 			break;
 		}
 
-		while ((size = fread(buf, 1, 5, src)) == 5 && !rc)
+		while ((size = fread(buf, 1, HEADER_SIZE, src)) == HEADER_SIZE)
 		{
-			size = buf[3];
+			size = buf[IPS_OFFSET_SIZE];
 			size <<= 8;
-			size |= buf[4];
+			size |= buf[IPS_OFFSET_SIZE + 1];
 
-			c = fwrite(buf, 5, 1, dest);
+			c = fwrite(buf, HEADER_SIZE, 1, dest);
 			if (c != 1)
 			{
 				rc = PCIPS_EIO;
 				break;
 			}
 
-			if (0 == size)
+			if (0 == size) /* RLE record */
 			{
-				c = fread(buf, 3, 1, src);
+				c = fread(buf, RLE_EXTENSION, 1, src);
 				if (c != 1)
 				{
 					rc = PCIPS_EFILE;
 					break;
 				}
 
-				c = fwrite(buf, 3, 1, dest);
+				c = fwrite(buf, RLE_EXTENSION, 1, dest);
 				if (c != 1)
 				{
 					rc = PCIPS_EFILE;
@@ -115,7 +118,8 @@ pcips_join_patches(FILE *dest, const char * const *src_paths, int n)
 			}
 		}
 
-		if (!rc && (size != 3 || memcmp(buf, IPS_FOOTER, 3) != 0))
+		if (!rc && (size != FOOTER_SIZE
+				|| memcmp(buf, IPS_FOOTER, FOOTER_SIZE) != 0))
 			rc = PCIPS_EFILE;
 
 		fclose(src);
