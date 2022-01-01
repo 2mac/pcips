@@ -74,8 +74,8 @@ write_record(FILE *f, const struct ips_record *rec)
 		header[5] = (size & 0xFF00) >> 8;
 		header[6] = (size & 0x00FF);
 
-		rc = fwrite(header, 7, 1, f);
-		if (EOF == rc)
+		rc = fwrite(header, RLE_HEADER_SIZE, 1, f);
+		if (rc != 1)
 			return PCIPS_EIO;
 
 		rc = fputc(rec->rle_data, f);
@@ -86,8 +86,8 @@ write_record(FILE *f, const struct ips_record *rec)
 	{
 		unsigned int i = 0;
 
-		rc = fwrite(header, 5, 1, f);
-		if (EOF == rc)
+		rc = fwrite(header, HEADER_SIZE, 1, f);
+		if (rc != 1)
 			return PCIPS_EIO;
 
 		while (size--)
