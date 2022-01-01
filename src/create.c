@@ -38,7 +38,8 @@
 #include "err.h"
 
 #define HEADER_SIZE 5
-#define RLE_RECORD_SIZE 8
+#define RLE_HEADER_SIZE (HEADER_SIZE + 2)
+#define RLE_RECORD_SIZE (RLE_HEADER_SIZE + 1)
 #define RLE_TRADEOFF_SIZE (HEADER_SIZE + RLE_RECORD_SIZE)
 
 struct ips_record
@@ -56,7 +57,7 @@ write_record(FILE *f, const struct ips_record *rec)
 	int rc;
 	long offset;
 	unsigned int size;
-	unsigned char header[7];
+	unsigned char header[RLE_HEADER_SIZE];
 
 	offset = rec->offset;
 	header[0] = (offset & 0xFF0000L) >> 16;
@@ -67,7 +68,7 @@ write_record(FILE *f, const struct ips_record *rec)
 	header[3] = (size & 0xFF00) >> 8;
 	header[4] = (size & 0x00FF);
 
-	if (0 == size)
+	if (0 == size) /* RLE record */
 	{
 		size = rec->rle_size;
 		header[5] = (size & 0xFF00) >> 8;
@@ -151,7 +152,7 @@ pcips_create_patch(FILE *src, FILE *modified, FILE *patch, long src_length)
 {
 	int rc = 0, c, src_c, mod_c, in_patch = 0;
 	long pos = 0;
-	unsigned char src_look_ahead[5], mod_look_ahead[5];
+	unsigned char src_look_ahead[HEADER_SIZE], mod_look_ahead[HEADER_SIZE];
 	struct ips_record rec;
 
 	rewind(src);
@@ -246,8 +247,8 @@ pcips_create_patch(FILE *src, FILE *modified, FILE *patch, long src_length)
 				unsigned int limit;
 
 				limit = IPS_MAX_RECORD - rec.size - 1;
-				if (limit > 5)
-					limit = 5;
+				if (limit > HEADER_SIZE)
+					limit = HEADER_SIZE;
 				else
 					limit = 0;
 
