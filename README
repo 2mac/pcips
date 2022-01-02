@@ -1,10 +1,10 @@
 pcips
 =====
 
-Portable C IPS patch utility. This program implements the IPS patching format,
-including such functions as applying patches to binaries, generating new patch
-files from modified binaries, and joining multiple patch files together in
-order.
+Portable C IPS patch utility for Linux and BSD. This program implements the IPS
+patching format, including such functions as applying patches to binaries,
+generating new patch files from modified binaries, and joining multiple patch
+files together in order.
 
 Most of you finding this program know what you're doing, but for those
 unfamiliar with the format, I have described it in an included [text file][1].
