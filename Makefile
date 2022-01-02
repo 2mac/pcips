@@ -8,6 +8,7 @@ all: pcips
 
 pcips_deps=src/main.o src/apply.o src/create.o src/err.o src/join.o
 pcips: $(pcips_deps)
+	./mvobjs.sh
 	$(CC) -o $@ $(pcips_deps)
 
 install: pcips
