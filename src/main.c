@@ -41,7 +41,7 @@
 #include "join.h"
 #include "err.h"
 
-#define VERSION "0.0.0"
+#define VERSION "0.0.1"
 #define PROG_INFO "pcips " VERSION
 #define USAGE "USAGE\n\
 \tApply a patch:\n\
@@ -334,7 +334,9 @@ main(int argc, char *argv[])
 			break;
 		}
 
-		rc = pcips_join_patches(dest_file, &argv[optind + 1],
+		rc = pcips_join_patches(dest_file,
+					(const char * const *)
+					argv + optind + 1,
 					remaining_args - 1);
 		break;
 	}
