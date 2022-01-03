@@ -91,13 +91,16 @@ write_record(FILE *f, const struct ips_record *rec)
 static int
 commit_non_rle_portion(FILE *f, struct ips_record *rec)
 {
+	int rc = 0;
+
 	if (rec->size != rec->rle_size)
 	{
 		rec->size -= rec->rle_size;
-		return write_record(f, rec);
+		rc = write_record(f, rec);
+		rec->offset += rec->size;
 	}
 
-	return 0;
+	return rc;
 }
 
 static int
@@ -107,7 +110,6 @@ strip_to_rle(FILE *f, struct ips_record *rec)
 
 	if (!rc)
 	{
-		rec->offset += rec->size;
 		rec->size = rec->rle_size;
 		memset(rec->data, rec->rle_data, rec->rle_size);
 	}
@@ -122,7 +124,6 @@ bail_to_rle(FILE *f, struct ips_record *rec)
 
 	if (!rc)
 	{
-		rec->offset += rec->size;
 		rec->size = 0;
 		rc = write_record(f, rec);
 
