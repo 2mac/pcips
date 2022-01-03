@@ -41,7 +41,7 @@
 #include "join.h"
 #include "err.h"
 
-#define VERSION "0.0.1"
+#define VERSION "0.0.2"
 #define PROG_INFO "pcips " VERSION
 #define USAGE "USAGE\n\
 \tApply a patch:\n\
