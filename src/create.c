@@ -89,43 +89,45 @@ write_record(FILE *f, const struct ips_record *rec)
 }
 
 static int
-strip_to_rle(FILE *f, struct ips_record *rec)
+commit_non_rle_portion(FILE *f, struct ips_record *rec)
 {
-	int rc;
-
-	rec->size -= rec->rle_size;
-	if (rec->size != 0)
+	if (rec->size != rec->rle_size)
 	{
-		rc = write_record(f, rec);
-		if (rc)
-			return rc;
+		rec->size -= rec->rle_size;
+		return write_record(f, rec);
 	}
-
-	rec->offset += rec->size;
-	rec->size = rec->rle_size;
-	memset(rec->data, rec->rle_data, rec->rle_size);
 
 	return 0;
 }
 
 static int
-bail_to_rle(FILE *f, struct ips_record *rec)
+strip_to_rle(FILE *f, struct ips_record *rec)
 {
-	int rc = 0;
+	int rc = commit_non_rle_portion(f, rec);
 
-	rec->size -= rec->rle_size;
-	if (rec->size != 0)
+	if (!rc)
 	{
-		rc = write_record(f, rec);
-		if (rc)
-			return rc;
+		rec->offset += rec->size;
+		rec->size = rec->rle_size;
+		memset(rec->data, rec->rle_data, rec->rle_size);
 	}
 
-	rec->offset += rec->size;
-	rec->size = 0;
-	rc = write_record(f, rec);
+	return rc;
+}
 
-	rec->offset += rec->rle_size;
+static int
+bail_to_rle(FILE *f, struct ips_record *rec)
+{
+	int rc = commit_non_rle_portion(f, rec);
+
+	if (!rc)
+	{
+		rec->offset += rec->size;
+		rec->size = 0;
+		rc = write_record(f, rec);
+
+		rec->offset += rec->rle_size;
+	}
 
 	return rc;
 }
