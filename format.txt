@@ -16,7 +16,7 @@ A plain record is structured as follows:
 |--------+--------+-------------------------------------------------------------------|
 | offset |      3 | Indicates the position in the file where the patch segment begins |
 | size   |      2 | Indicates the number of data bytes to follow                      |
-| data   |   size | The bytes to be inserted at offset                                |
+| data   |   size | The bytes to be written at offset                                 |
 
 An RLE record describes a string of identical repeating bytes. It has the
 structure:
